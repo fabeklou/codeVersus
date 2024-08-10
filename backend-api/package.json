@@ -1,0 +1,46 @@
+{
+  "type": "module",
+  "name": "backend-api",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint",
+    "check-lint": "lint *.js",
+    "start:dev": "nodemon --env-file=.env ./src/server.js",
+    "start": "node ./src/server.js",
+    "test": "./node_modules/.bin/mocha --require @babel/register --exit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.3",
+    "bcrypt": "^5.1.1",
+    "bullmq": "^5.12.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.5.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "redis": "^4.7.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^10.0.0",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "chai-http": "^5.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^28.8.0",
+    "mocha": "^10.7.3",
+    "nodemon": "^3.1.4",
+    "request": "^2.88.2",
+    "sinon": "^18.0.0"
+  }
+}
