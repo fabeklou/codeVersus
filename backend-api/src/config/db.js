@@ -1,40 +1,31 @@
 import mongoose from 'mongoose';
-import UserModel from '../models/User.js';
 
-class DBClient {
-  constructor() {
-    const DB_URI = process.env.DB_SERVER_URI || 'mongodb://127.0.0.1:27017/test_db';
+const dbURI = process.env.DB_SERVER_URI || 'mongodb://localhost:27017/test_db';
 
-    const main = async () => {
-      try {
-        await mongoose.connect(DB_URI);
-        console.log('Connected to MongoDB');
-      } catch (error) {
-        console.log('Error connecting to MongoDB:', error);
-      }
-    }
+const connectDB = async () => {
+  try {
+    const dbConnection = await mongoose.connect(dbURI);
+    const db = dbConnection.connection;
 
-    main();
-  }
+    db.on('connected', () => {
+      console.log('Mongoose connected to MongoDB');
+    });
 
-  async isAlive() {
-    const connectedCode = 1;
-    while (mongoose.connection.readyState === 2) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    return mongoose.connection.readyState === connectedCode;
-  }
+    db.on('error', (err) => {
+      console.log(`Mongoose connection error: ${err}`);
+    });
 
-  async nbUsers() {
-    const status = await this.isAlive();
-    if (status) return UserModel.countDocuments();
-    return -1;
-  }
-  async nbSnippets() {
-    /** GET number of snippets */
+    db.on('disconnected', () => {
+      console.log('Mongoose disconnected');
+    });
+
+    console.log(db.readyState);
+    return db;
+  } catch (error) {
+    console.error('Error connecting to MongoDB', error);
+    throw error;
   }
 }
 
-const dbClient = new DBClient();
-
-export default dbClient;
+const db = await connectDB();
+export default db;
