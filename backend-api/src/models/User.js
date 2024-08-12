@@ -14,9 +14,42 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  userProfil: {
+    bio: {
+      type: String,
+      default: 'code versus is so much fun.'
+    },
+    friends: {
+      type: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }]
+    },
+    interests: {
+      type: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tag'
+      }]
+    },
+    profilePicture: {
+      type: String
+    }
   }
 }, { versionKey: false });
 
-const UserModel = mongoose.model('UserModel', userSchema);
+const UserModel = mongoose.model('User', userSchema);
 
 export default UserModel;
