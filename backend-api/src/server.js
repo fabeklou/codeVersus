@@ -1,11 +1,27 @@
 import express from 'express';
-import authRoutesMapper from './auth/index.js';
+import session from 'express-session';
+import authRoutes from './auth/index.js';
+import mainRoutes from './routes/index.js';
+import checkAuthStatus from './middlewares/checkAuthStatus.js';
+import db from './config/db.js';
 
 const app = express();
 const port = process.env.EXPRESS_PORT || 5050;
 
 app.use(express.json());
-authRoutesMapper(app);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  saveUninitialized: false,
+  resave: false,
+  cookie: {
+    /** cookies ttl: 3 Days */
+    maxAge: 60000 * 60 * 72,
+  },
+}));
+
+app.use(authRoutes);
+app.use(checkAuthStatus);
+app.use(mainRoutes);
 
 app.listen(port, () => {
   console.log(`server running on port: ${port}`);
