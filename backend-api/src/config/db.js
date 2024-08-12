@@ -19,7 +19,6 @@ const connectDB = async () => {
       console.log('Mongoose disconnected');
     });
 
-    console.log(db.readyState);
     return db;
   } catch (error) {
     console.error('Error connecting to MongoDB', error);
