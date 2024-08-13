@@ -46,6 +46,15 @@ const userSchema = new mongoose.Schema({
     },
     profilePicture: {
       type: String
+    },
+    githubLink: {
+      type: String
+    },
+    xLink: {
+      type: String
+    },
+    linkedinLink: {
+      type: String
     }
   }
 }, { versionKey: false });
