@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const tagSchema = new mongoose.Schema({
   name: {
     type: String,
+    maxLength: 15,
     unique: true,
     required: true
   }
