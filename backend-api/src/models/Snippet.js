@@ -19,9 +19,18 @@ const snippetSchema = new mongoose.Schema({
       ref: 'Tag'
     }]
   },
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
+  privateLink: {
+    type: String,
+    default: ''
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   }
 }, { versionKey: false });
 
