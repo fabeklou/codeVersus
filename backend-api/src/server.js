@@ -3,6 +3,7 @@ import session from 'express-session';
 import authRoutes from './auth/index.js';
 import mainRoutes from './routes/index.js';
 import checkAuthStatus from './middlewares/checkAuthStatus.js';
+import { redisStore } from './config/redis.js';
 import db from './config/db.js';
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(session({
     /** cookies ttl: 3 Days */
     maxAge: 60000 * 60 * 72,
   },
+  store: redisStore,
 }));
 
 app.use(authRoutes);
