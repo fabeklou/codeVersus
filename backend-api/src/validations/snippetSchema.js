@@ -33,13 +33,14 @@ const SnippetSchema = yup.object({
           }),
     description:
       yup.string('Description must be a string.')
+        .required('Description is required.')
         .max(200, 'Description must be at most 200 characters.'),
     isPublic:
       yup.boolean('isPublic must be a boolean.')
         .default(false),
     tags:
-      yup.array()
-        .of(yup.string('Tag must be a string.'))
+      yup.array('tags must be an array.')
+        .of(yup.string('Tag must be a string array.'))
         .min(1, 'At least one tag is required.')
         .max(5, 'Maximum of 5 tags allowed.')
         .test('unique-tags',
