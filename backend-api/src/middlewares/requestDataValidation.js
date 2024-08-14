@@ -5,8 +5,9 @@ const requestDataValidation = (validationSchema) => async (req, res, next) => {
       query: req.query,
       params: req.params
     }
+
     await validationSchema.validate(requestData, { abortEarly: true });
-    next()
+    next();
   } catch (error) {
     return res.status(400).json({ error });
   }
