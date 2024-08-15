@@ -100,7 +100,17 @@ class CodeSnippet {
       return res.status(400).json({ error });
     }
 
+    /** create array of tagIds */
+
+    let tagIds;
+    try {
+      tagIds = await CodeSnippet.saveTagsAndGetIds(tags);
+    } catch (error) {
+      return res.status(400).json({ error: 'error while saving tags.' });
+    }
+
     /** Save snippet on disk */
+
     const filePath = `${userSnippetsRootFolder}/${uuidv4()}`;
     try {
       await CodeSnippet.saveSnippetOnDisk(filePath, codeSnippet);
@@ -109,12 +119,6 @@ class CodeSnippet {
     }
 
     /** Create dict of data to save in db */
-    let tagIds;
-    try {
-      tagIds = await CodeSnippet.saveTagsAndGetIds(tags);
-    } catch (error) {
-      return res.status(400).json({ error: 'error while saving tags.' });
-    }
 
     const snippetData = {
       title,
