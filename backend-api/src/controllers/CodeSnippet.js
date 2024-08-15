@@ -284,7 +284,8 @@ class CodeSnippet {
         language: language || snippet.language,
         description: description || snippet.description,
         tags: tagIds || snippet.tags,
-        isPublic: isPublic || snippet.isPublic
+        isPublic: isPublic || snippet.isPublic,
+        updatedAt: Date.now()
       };
 
       await SnippetModel.updateOne({ _id: snippetId }, updateValues);
@@ -338,7 +339,7 @@ class CodeSnippet {
 
       const apiUrl = process.env.BACKEND_API_URL;
       const uniqueId = uuidv4();
-      const privateLink = `${apiUrl}/api/snippets/shared/${uniqueId}`;
+      const privateLink = `${apiUrl}/api/snippets/link/${uniqueId}`;
       await SnippetModel.updateOne({ _id: snippetId }, { privateLink: uniqueId });
 
       return res.status(200).json({ privateLink });
@@ -365,7 +366,7 @@ class CodeSnippet {
       }
 
       const apiUrl = process.env.BACKEND_API_URL;
-      const privateLink = `${apiUrl}/api/snippets/shared/${snippet.privateLink}`;
+      const privateLink = `${apiUrl}/api/snippets/link/${snippet.privateLink}`;
 
       return res.status(200).json({ privateLink });
     } catch (error) {
@@ -443,7 +444,33 @@ class CodeSnippet {
           pageNumber,
           pageLimit,
           searchObject);
-      return res.status(200).json({ snippets });
+      return res.status(200).json(snippets);
+    } catch (error) {
+      return res.status(400).json({ error });
+    }
+  }
+
+  static async likeUnlikeCodeSnippet(req, res) {
+    const { snippetId } = req.params;
+    const { userId } = req.session;
+
+    try {
+      const snippet = await SnippetModel.findOne({ _id: snippetId });
+
+      if (!snippet) return res.status(404).json({ error: 'Snippet not found.' });
+
+      if (snippet.likes.includes(userId)) {
+        await SnippetModel.updateOne(
+          { _id: snippetId },
+          { $pull: { likes: userId } });
+        return res.status(200).json({ message: 'Snippet unliked successfully.' });
+      }
+
+      await SnippetModel.updateOne(
+        { _id: snippetId },
+        { $addToSet: { likes: userId } });
+
+      return res.status(200).json({ message: 'Snippet liked successfully.' });
     } catch (error) {
       return res.status(400).json({ error });
     }
