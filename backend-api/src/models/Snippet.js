@@ -23,9 +23,14 @@ const snippetSchema = new mongoose.Schema({
   tags: {
     type: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tag',
-      unique: true
-    }]
+      ref: 'Tag'
+    }],
+    validate: {
+      validator: (value) => {
+        return value.length === new Set(value.map(tag => tag.toString())).size;
+      },
+      message: 'Tags must be unique within the snippet.'
+    }
   },
   isPublic: {
     type: Boolean,
