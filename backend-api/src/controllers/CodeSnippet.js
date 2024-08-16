@@ -77,7 +77,7 @@ class CodeSnippet {
       }
     }
 
-    return tagIds;
+    return tagIds.length ? tagIds : null;
   }
 
   static async saveCodeSnippet(req, res) {

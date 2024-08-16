@@ -35,7 +35,7 @@ class SnippetTag {
 
   static async getTagById(tagId) {
     try {
-      const tag = await TagModel.findById({ _id: tagId });
+      const tag = await TagModel.findOne({ _id: tagId });
       return tag;
     } catch (error) {
       throw new Error(error);
