@@ -61,6 +61,20 @@ const snippetSchema = new mongoose.Schema({
   }
 }, { versionKey: false });
 
+/** Middleware to update the updatedAt field before saving */
+snippetSchema.pre('save',
+  (next) => {
+    this.updatedAt = Date.now();
+    next();
+  });
+
+/** Middleware to update the updatedAt field before any update operation */
+snippetSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
+  (next) => {
+    this.set({ updatedAt: Date.now() });
+    next();
+  });
+
 const SnippetModel = mongoose.model('Snippet', snippetSchema);
 
 export default SnippetModel;

@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  userProfil: {
+  userProfile: {
     bio: {
       type: String,
       default: 'code versus is so much fun.'
@@ -41,8 +41,15 @@ const userSchema = new mongoose.Schema({
     interests: {
       type: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tag'
-      }]
+        ref: 'Interest'
+      }],
+      validate: {
+        validator: (value) => {
+          return value.length === new Set(value.map(
+            (interest) => interest.toString())).size;
+        },
+        message: 'Interests must be unique for a user.'
+      }
     },
     profilePicture: {
       type: String
@@ -58,6 +65,20 @@ const userSchema = new mongoose.Schema({
     }
   }
 }, { versionKey: false });
+
+/** Middleware to update the updatedAt field before saving */
+userSchema.pre('save',
+  (next) => {
+    this.updatedAt = Date.now();
+    next();
+  });
+
+/** Middleware to update the updatedAt field before any update operation */
+userSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
+  (next) => {
+    this.set({ updatedAt: Date.now() });
+    next();
+  });
 
 const UserModel = mongoose.model('User', userSchema);
 
