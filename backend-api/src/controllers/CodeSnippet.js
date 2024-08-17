@@ -60,6 +60,18 @@ class CodeSnippet {
     });
   }
 
+  static async deleteSnippetFromDisk(filePath) {
+    return new Promise((resolve, reject) => {
+      fs.unlink(filePath,
+        (error) => {
+          if (error) {
+            reject(new Error('Error deleting snippet from disk.'));
+          }
+          resolve();
+        });
+    });
+  }
+
   static async saveTagsAndGetIds(tags) {
     const tagIds = [];
 
@@ -149,12 +161,27 @@ class CodeSnippet {
     }
   }
 
-  static async searchCodeSnippets(pageNumber, pageLimit, searchObject) {
+  static async searchCodeSnippets(pageNumber, pageLimit, filter, searchQuery) {
     try {
+      /** Add full-text search to the filter, if searchQuery is provided */
+      if (searchQuery) {
+        filter.$text = { $search: searchQuery };
+      }
+
+      /** Insert textScore field, to be used for sorting
+       * if searchQuery is not null
+       **/
       const snippets = await SnippetModel
-        .find(searchObject,
-          { title: 1, language: 1, description: 1, tags: 1, userId: 1, isPublic: 1 }
-        )
+        .find(filter, {
+          title: 1,
+          language: 1,
+          description: 1,
+          tags: 1,
+          userId: 1,
+          isPublic: 1,
+          ...(searchQuery && { score: { $meta: "textScore" } })
+        })
+        .sort(searchQuery ? { score: { $meta: "textScore" } } : {})
         .populate({
           path: 'tags',
           select: 'name'
@@ -191,17 +218,23 @@ class CodeSnippet {
 
   static async getCodeSnippets(req, res) {
     const { userId } = req.session;
-    const { page, limit } = req.query;
+    const { page, limit, language, tags, query } = req.query;
 
     const pageLimit = limit || 10;
     const pageNumber = page || 1;
 
     try {
-      const searchObject = { userId };
+      const filter = {
+        userId,
+        language: language || { $exists: true },
+        ...(tags && { tags: { $in: tags } })
+      };
+
       const snippets = await CodeSnippet.searchCodeSnippets(
         pageNumber,
         pageLimit,
-        searchObject);
+        filter,
+        query);
       return res.status(200).json(snippets);
     } catch (error) {
       return res.status(400).json({ error });
@@ -284,8 +317,7 @@ class CodeSnippet {
         language: language || snippet.language,
         description: description || snippet.description,
         tags: tagIds || snippet.tags,
-        isPublic: isPublic || snippet.isPublic,
-        updatedAt: Date.now()
+        isPublic: isPublic || snippet.isPublic
       };
 
       await SnippetModel.updateOne({ _id: snippetId }, updateValues);
@@ -312,6 +344,7 @@ class CodeSnippet {
         return res.status(404).json({ error: 'Snippet not found.' });
       }
 
+      await CodeSnippet.deleteSnippetFromDisk(snippet.filePath);
       await SnippetModel.deleteOne({ _id: snippetId });
 
       return res.status(200).json({ message: 'Snippet deleted successfully.' });
@@ -378,7 +411,7 @@ class CodeSnippet {
     const { privateLink } = req.params;
 
     if (privateLink.trim() === '') {
-      return res.status(400).json({ error: 'Invalid private link.' });
+      return res.status(400).json({ error: 'Snippet not found.' });
     }
 
     try {
@@ -386,7 +419,7 @@ class CodeSnippet {
         .findOne({ privateLink })
         .lean();
 
-      if (!snippet) return res.status(404).json({ error: 'Snippet not found' });
+      if (!snippet) return res.status(404).json({ error: 'Snippet not found.' });
 
       const codeSnippet = await CodeSnippet.readSnippetFromDisk(snippet.filePath);
 
@@ -432,18 +465,25 @@ class CodeSnippet {
   }
 
   static async getPublicCodeSnippets(req, res) {
-    const { page, limit } = req.query;
+    const { page, limit, query, language, tags } = req.query;
 
     const pageLimit = limit || 10;
     const pageNumber = page || 1;
 
     try {
-      const searchObject = { isPublic: true };
+      /** filter public snippets based on language and tags */
+      const filter = {
+        isPublic: true,
+        language: language || { $exists: true },
+        ...(tags && { tags: { $in: tags } })
+      };
+
       const snippets = await CodeSnippet
         .searchCodeSnippets(
           pageNumber,
           pageLimit,
-          searchObject);
+          filter,
+          query);
       return res.status(200).json(snippets);
     } catch (error) {
       return res.status(400).json({ error });
