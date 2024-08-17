@@ -68,18 +68,29 @@ const userSchema = new mongoose.Schema({
 
 /** Middleware to update the updatedAt field before saving */
 userSchema.pre('save',
-  (next) => {
-    this.updatedAt = Date.now();
-    next();
+  function (next) {
+    try {
+      this.set({ updatedAt: Date.now() });
+      next();
+    } catch (err) {
+      next(err);
+    }
   });
 
 /** Middleware to update the updatedAt field before any update operation */
 userSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
-  (next) => {
-    this.set({ updatedAt: Date.now() });
-    next();
+  function (next) {
+    try {
+      this.set({ updatedAt: Date.now() });
+      next();
+    } catch (err) {
+      next(err);
+    }
   });
 
 const UserModel = mongoose.model('User', userSchema);
+
+/** Add full-text search support */
+UserModel.createIndexes({ username: 'text' });
 
 export default UserModel;
