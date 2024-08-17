@@ -3,12 +3,16 @@ import * as yup from 'yup';
 const UpdateProfileSchema = yup.object({
   body: yup.object({
     bio:
-      yup.string()
+      yup.string('Biography must be a string.')
         .min(20, 'Your biography must be at least 20 characters long.')
         .max(200, 'Your biography must be at most 200 characters long.'),
     interests:
-      yup.array()
-        .of(yup.string('Interest must be a string.'))
+      yup.array('Interests must be an array.')
+        .of(
+          yup.string('Interest must be a string.')
+            .min(3, 'Interest must be at least 3 characters long.')
+            .max(30, 'Interest must be at most 30 characters long.')
+        )
         .min(1, 'At least one interest is required.')
         .max(5, 'Maximum of 5 interests allowed.')
         .required('At least one interest is required.'),
@@ -32,7 +36,7 @@ const UpdateProfileSchema = yup.object({
         .matches(
           /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/,
           'Invalid LinkedIn profile link.'
-        ),
+        )
   })
 });
 
