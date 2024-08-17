@@ -7,6 +7,7 @@ import CodeSnippet from '../controllers/CodeSnippet.js';
 import UpdateProfileSchema from '../validations/updateProfileSchema.js';
 import UserProfile from '../controllers/UserProfile.js';
 import UpdateSnippetSchema from '../validations/UpdateSnippetSchema.js';
+import upload from '../utils/multerProfilePicture.js';
 
 const router = Router();
 
@@ -18,12 +19,28 @@ router.post('/api/submissions',
 
 /** User profile routes */
 
-router.get('/api/users/profile/:username',
+router.get('/api/users/profile',
   UserProfile.getProfile);
 
 router.put('/api/users/profile',
   requestDataValidation(UpdateProfileSchema),
+  upload.single('profilePicture'),
   UserProfile.updateProfile);
+
+router.get('/api/users/friends',
+  UserProfile.getFriends);
+
+router.get('/api/users',
+  UserProfile.getUsers);
+
+router.get('/api/users/profile/:username',
+  UserProfile.getUserProfile);
+
+router.patch('/api/users/friends/:username',
+  UserProfile.followUnfollowUser);
+
+router.delete('/api/users/account',
+  UserProfile.deleteUserAccount);
 
 /** Snippet routes */
 
