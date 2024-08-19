@@ -120,6 +120,27 @@ router.post('/api/auth/login',
   requestDataValidation(LoginSchema),
   UserLogin.login);
 
+/**
+* @swagger
+* /api/auth/status:
+*   get:
+*     summary: User autentication status
+*     tags:
+*       - Authentication
+*     responses:
+*       200:
+*         description: User is logged in.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: connected.
+*       401:
+*         description: Unauthorized.
+*/
 router.get('/api/auth/status',
   checkAuthStatus,
   (req, res) => res.status(200).json({ message: 'connected' }));
