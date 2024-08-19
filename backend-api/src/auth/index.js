@@ -70,6 +70,52 @@ router.post('/api/auth/register',
   requestDataValidation(RegistrationSchema),
   UserSignup.register);
 
+/**
+* @swagger
+* /api/auth/login:
+*   post:
+*     summary: User login
+*     tags:
+*       - Authentication
+*     requestBody:
+*       description: User authentication data
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               usernameOrEmail:
+*                 type: string
+*                 description: The user's username or email address
+*                 example: johndoe
+*               password:
+*                 type: string
+*                 format: password
+*                 description: The user's password
+*                 example: MySecurePassword-123
+
+*             required:
+*               - usernameOrEmail
+*               - password
+*     responses:
+*       200:
+*         description: User logged in.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: User logged in successfully.
+*       400:
+*         description: Invalid username/email or password.
+*       401:
+*         description: Please verify your account.
+*       500:
+*         description: Internal server error
+*/
 router.post('/api/auth/login',
   requestDataValidation(LoginSchema),
   UserLogin.login);
