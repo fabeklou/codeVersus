@@ -109,7 +109,7 @@ class CodeSnippet {
     try {
       CodeSnippet.createUserSnippetsFolder(userSnippetsRootFolder);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
 
     /** create array of tagIds */
@@ -118,7 +118,7 @@ class CodeSnippet {
     try {
       tagIds = await CodeSnippet.saveTagsAndGetIds(tags);
     } catch (error) {
-      return res.status(400).json({ error: 'error while saving tags.' });
+      return res.status(500).json({ error: 'error while saving tags.' });
     }
 
     /** Save snippet on disk */
@@ -127,7 +127,7 @@ class CodeSnippet {
     try {
       await CodeSnippet.saveSnippetOnDisk(filePath, codeSnippet);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
 
     /** Create dict of data to save in db */
@@ -157,7 +157,7 @@ class CodeSnippet {
 
       return res.status(200).json(responseData);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -179,6 +179,9 @@ class CodeSnippet {
           tags: 1,
           userId: 1,
           isPublic: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          likes: 1,
           ...(searchQuery && { score: { $meta: "textScore" } })
         })
         .sort(searchQuery ? { score: { $meta: "textScore" } } : {})
@@ -188,6 +191,10 @@ class CodeSnippet {
         })
         .populate({
           path: 'userId',
+          select: 'username -_id'
+        })
+        .populate({
+          path: 'likes',
           select: 'username -_id'
         })
         .skip((pageNumber - 1) * pageLimit)
@@ -220,8 +227,8 @@ class CodeSnippet {
     const { userId } = req.session;
     const { page, limit, language, tags, query } = req.query;
 
-    const pageLimit = limit || 10;
-    const pageNumber = page || 1;
+    const pageLimit = parseInt(page, 10) || 10;
+    const pageNumber = parseInt(limit, 10) || 1;
 
     try {
       const filter = {
@@ -322,12 +329,12 @@ class CodeSnippet {
 
       await SnippetModel.updateOne({ _id: snippetId }, updateValues);
 
-      /** Save newcode snippet on disk */
+      /** Save new code snippet on disk */
       if (codeSnippet) CodeSnippet.saveSnippetOnDisk(snippet.filePath, codeSnippet);
 
       return res.status(200).json({ message: 'Snippet updated successfully.' });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -349,7 +356,7 @@ class CodeSnippet {
 
       return res.status(200).json({ message: 'Snippet deleted successfully.' });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -372,12 +379,12 @@ class CodeSnippet {
 
       const apiUrl = process.env.BACKEND_API_URL;
       const uniqueId = uuidv4();
-      const privateLink = `${apiUrl}/api/snippets/link/${uniqueId}`;
+      const privateLink = `${apiUrl}/api/snippets/from/${uniqueId}`;
       await SnippetModel.updateOne({ _id: snippetId }, { privateLink: uniqueId });
 
       return res.status(200).json({ privateLink });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -399,11 +406,11 @@ class CodeSnippet {
       }
 
       const apiUrl = process.env.BACKEND_API_URL;
-      const privateLink = `${apiUrl}/api/snippets/link/${snippet.privateLink}`;
+      const privateLink = `${apiUrl}/api/snippets/from/${snippet.privateLink}`;
 
       return res.status(200).json({ privateLink });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -411,7 +418,7 @@ class CodeSnippet {
     const { privateLink } = req.params;
 
     if (privateLink.trim() === '') {
-      return res.status(400).json({ error: 'Snippet not found.' });
+      return res.status(404).json({ error: 'Snippet not found.' });
     }
 
     try {
@@ -435,7 +442,7 @@ class CodeSnippet {
 
       return res.status(200).json(snippetData);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -460,15 +467,15 @@ class CodeSnippet {
 
       return res.status(200).json({ message: 'Private link removed successfully.' });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
   static async getPublicCodeSnippets(req, res) {
     const { page, limit, query, language, tags } = req.query;
 
-    const pageLimit = limit || 10;
-    const pageNumber = page || 1;
+    const pageLimit = parseInt(page, 10) || 10;
+    const pageNumber = parseInt(limit, 10) || 1;
 
     try {
       /** filter public snippets based on language and tags */
@@ -486,7 +493,7 @@ class CodeSnippet {
           query);
       return res.status(200).json(snippets);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 
@@ -503,16 +510,16 @@ class CodeSnippet {
         await SnippetModel.updateOne(
           { _id: snippetId },
           { $pull: { likes: userId } });
-        return res.status(200).json({ message: 'Snippet unliked successfully.' });
+        return res.status(200).json({ message: 'Code snippet unliked successfully.' });
       }
 
       await SnippetModel.updateOne(
         { _id: snippetId },
         { $addToSet: { likes: userId } });
 
-      return res.status(200).json({ message: 'Snippet liked successfully.' });
+      return res.status(200).json({ message: 'Code snippet liked successfully.' });
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error });
     }
   }
 };
