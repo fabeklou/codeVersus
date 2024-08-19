@@ -390,6 +390,66 @@ router.get('/api/users/friends',
 router.get('/api/users',
   UserProfile.getUsers);
 
+/**
+* @swagger
+* /api/users/profile/{username}:
+*   get:
+*     summary: User get another user profile
+*     tags:
+*       - Users
+*     parameters:
+*       - in: path
+*         name: username
+*         schema:
+*           type: string
+*           description: Username of the user to get profile
+*           example: johndoe
+*         required: true
+*     responses:
+*       200:
+*         description: Another user profile.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 username:
+*                   type: string
+*                 createdAt:
+*                   type: string
+*                 updatedAt:
+*                   type: string
+*                 userProfile:
+*                   type: object
+*                   properties:
+*                     bio:
+*                       type: string
+*                       example: code versus is so much fun.
+*                     interests:
+*                       type: array
+*                       items:
+*                         type: string
+*                     profilePicture:
+*                       type: string
+*                     githubLink:
+*                       type: string
+*                     xLink:
+*                       type: string
+*                     linkedinLink:
+*                       type: string
+*                     friends:
+*                       type: array
+*                       items:
+*                         type: string
+*       400:
+*         description: Bad request.
+*       401:
+*         description: Unauthorized.
+*       404:
+*         description: User not found
+*       500:
+*         description: Internal server error
+*/
 router.get('/api/users/profile/:username',
   UserProfile.getUserProfile);
 
