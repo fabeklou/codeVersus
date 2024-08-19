@@ -145,9 +145,65 @@ router.get('/api/auth/status',
   checkAuthStatus,
   (req, res) => res.status(200).json({ message: 'connected' }));
 
+/**
+* @swagger
+* /api/auth/logout:
+*   get:
+*     summary: User logout
+*     tags:
+*       - Authentication
+*     responses:
+*       200:
+*         description: User is logged out.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: User logged out successfully.
+*       400:
+*         description: You were already logged out.
+*       401:
+*         description: Unable to logout.
+*/
 router.get('/api/auth/logout',
   UserLogout.logout);
 
+/**
+ * @swagger
+ * /api/auth/confirmation:
+ *   get:
+ *     summary: User email confirmation
+ *     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: JWT token sent to user email.
+ *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2VAZXhhbXBsZS5jb20ifQ.0H3zq8Gm8TQJ5J2jDq0kPbJ9zv9J1GJvK6Y9J1GJvK6
+ *     responses:
+ *       200:
+ *         description: User email verified.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email verified successfully..
+ *       400:
+ *         description: Confirmation JWT token is required.
+ *       401:
+ *         description: jwt error message.
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/api/auth/confirmation',
   EmailConfirmation.confirmation);
 
