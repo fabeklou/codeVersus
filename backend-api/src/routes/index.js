@@ -147,82 +147,87 @@ router.get('/api/users/profile',
   UserProfile.getProfile);
 
 /**
-* @swagger
-* /api/users/profile:
-*   put:
-*     summary: User update his profile
-*     tags:
-*       - Users
-*     requestBody:
-*       description: User update profile data
-*       required: true
-*       content:
-*         application/json:
-*           schema:
-*             type: object
-*             properties:
-*               bio:
-*                 type: string
-*                 description: User biography
-*                 example: code versus is so much fun.
-*               interests:
-*                 type: array
-*                 items:
-*                   type: string
-*                 description: User interests
-*                 example: ["coding", "reading"]
-*               githubLink:
-*                 type: string
-*                 description: User GitHub profile link
-*                 example: https://github.com/johndoe
-*               xLink:
-*                 type: string
-*                 description: User Twitter (X) profile link
-*                 example: https://twitter.com/johndoe
-*               linkedinLink:
-*                 type: string
-*                 description: User LinkedIn profile link
-*                 example: https://linkedin.com/in/johndoe
-*             required:
-*               - interests
-*     responses:
-*       200:
-*         description: User updated profile data.
-*         content:
-*           application/json:
-*             schema:
-*               type: object
-*               properties:
-*                 message:
-*                   type: string
-*                   example: Profile updated successfully.
-*                 userProfile:
-*                   type: object
-*                   properties:
-*                     bio:
-*                       type: string
-*                       example: My bio has now been updated.
-*                     interests:
-*                       type: array
-*                       items:
-*                         type: string
-*                     profilePicture:
-*                       type: string
-*                     githubLink:
-*                       type: string
-*                     xLink:
-*                       type: string
-*                     linkedinLink:
-*                       type: string
-*       400:
-*         description: Invalid payload.
-*       401:
-*         description: Unauthorized.
-*       404:
-*         description: User not found
-*       500:
-*         description: Internal server error
-*/
+ * @swagger
+ * /api/users/profile:
+ *   put:
+ *     summary: Update user profile
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       description: User update profile data
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bio:
+ *                 type: string
+ *                 description: User biography
+ *                 example: code versus is so much fun.
+ *               interests:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: User interests
+ *                 example: ["coding", "reading"]
+ *               githubLink:
+ *                 type: string
+ *                 description: User GitHub profile link
+ *                 example: https://github.com/johndoe
+ *               xLink:
+ *                 type: string
+ *                 description: User Twitter (X) profile link
+ *                 example: https://twitter.com/johndoe
+ *               linkedinLink:
+ *                 type: string
+ *                 description: User LinkedIn profile link
+ *                 example: https://linkedin.com/in/johndoe
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: Profile picture file
+ *             required:
+ *               - interests
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Profile updated successfully.
+ *                 userProfile:
+ *                   type: object
+ *                   properties:
+ *                     bio:
+ *                       type: string
+ *                       example: My bio has now been updated.
+ *                     interests:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     profilePicture:
+ *                       type: string
+ *                       description: URL to the uploaded profile picture
+ *                     githubLink:
+ *                       type: string
+ *                     xLink:
+ *                       type: string
+ *                     linkedinLink:
+ *                       type: string
+ *       400:
+ *         description: Invalid payload.
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
 router.put('/api/users/profile',
   requestDataValidation(UpdateProfileSchema),
   upload.single('profilePicture'),
@@ -453,9 +458,69 @@ router.get('/api/users',
 router.get('/api/users/profile/:username',
   UserProfile.getUserProfile);
 
+/**
+* @swagger
+* /api/users/friends/{username}:
+*   patch:
+*     summary: User follow or unfollow another user (friend)
+*     tags:
+*       - Users
+*     parameters:
+*       - in: path
+*         name: username
+*         schema:
+*           type: string
+*           description: Username of the user to follow or unfollow
+*           example: johndoe
+*         required: true
+*     responses:
+*       200:
+*         description: Friend removed successfully or added successfully.
+*         content:
+*           application/json:
+*             schema:
+*               type: string
+*               properties:
+*                 message:
+*                   type: string
+*                   example: Friend removed successfully.
+*       400:
+*         description: Bad request.
+*       401:
+*         description: Unauthorized.
+*       404:
+*         description: User not found
+*       500:
+*         description: Internal server error
+*/
 router.patch('/api/users/friends/:username',
   UserProfile.followUnfollowUser);
 
+/**
+* @swagger
+* /api/users/account:
+*   delete:
+*     summary: User delete his account and snippets
+*     tags:
+*       - Users
+*     responses:
+*       200:
+*         description: User account deleted successfully.
+*         content:
+*           application/json:
+*             schema:
+*               type: string
+*               properties:
+*                 message:
+*                   type: string
+*                   example: User account and snippets deleted successfully.
+*       401:
+*         description: Unauthorized.
+*       404:
+*         description: User not found
+*       500:
+*         description: Internal server error
+*/
 router.delete('/api/users/account',
   UserProfile.deleteUserAccount);
 
