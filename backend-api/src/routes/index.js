@@ -526,10 +526,176 @@ router.delete('/api/users/account',
 
 /** Snippet routes */
 
+/**
+* @swagger
+* /api/snippets:
+*   post:
+*     summary: User create new code snippet
+*     tags:
+*       - Code Snippet
+*     requestBody:
+*       description: Code snippet data
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               title:
+*                 type: string
+*                 description: Title of the code snippet
+*                 example: My first code snippet
+*                 default: Untitled Snippet
+*               language:
+*                 type: string
+*                 description: Pragramming language of the code snippet
+*                 example: Python
+*               codeSnippet:
+*                 type: string
+*                 description: Code snippet, base64 encoded
+*                 example: ZGVmIG1haW4oKToKICAgIHByaW50KCdIZWxsbyBmcm9tIGNvZGUgdmVyc3VzIikK
+*               description:
+*                 type: string
+*                 description: Description of the code snippet
+*                 example: This code snippet converts a string to uppercase
+*               tags:
+*                 type: array
+*                 items:
+*                   type: string
+*                 description: Tags for the code snippet
+*                 example: ["python", "string"]
+*               isPublic:
+*                 type: boolean
+*                 description: Code snippet visibility
+*                 example: true
+*             required:
+*               - title
+*               - language
+*               - codeSnippet
+*               - description
+*               - tags
+*               - isPublic
+*
+*     responses:
+*       200:
+*         description: Snippet saved successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: Snippet saved successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     _id:
+*                       type: string
+*                     title:
+*                       type: string
+*       400:
+*         description: Invalid payload.
+*       401:
+*         description: Unauthorized.
+*       500:
+*         description: Internal server error
+*/
 router.post('/api/snippets',
   requestDataValidation(snippetSchema),
   CodeSnippet.saveCodeSnippet);
 
+/**
+ * @swagger
+ * /api/snippets:
+ *   get:
+ *     summary: User search/find code snippets
+ *     tags:
+ *       - Code Snippet
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           description: Page number
+ *           example: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           description: Number of users per page
+ *           example: 10
+ *           default: 10
+ *       - in: query
+ *         name: tags
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Filter snippets by tags
+ *           example: ["string", "priority queue"]
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *           description: Search query to find snippets
+ *           example: backtracking
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *           description: Filter snippets by programming language
+ *           example: Javascript
+ *     responses:
+ *       200:
+ *         description: A list of snippets found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                 total:
+ *                   type: integer
+ *                   example: 8
+ *                 snippets:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 1234
+ *                       title:
+ *                         type: string
+ *                         example: My first code snippet
+ *                       language:
+ *                         type: string
+ *                         example: Python
+ *                       codeSnippet:
+ *                         type: string
+ *                         example: ZGVmIG1haW4oKToKICAgIHByaW50KCdIZWxsbyBmcm9tIGNvZGUgdmVyc3VzIikK
+ *                       description:
+ *                         type: string
+ *                         example: This code snippet converts a string to uppercase
+ *                       tags:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example: ["python", "string"]
+ *       400:
+ *         description: Bad request.
+ *       401:
+ *         description: Unauthorized..
+ *       500:
+ *         description: Internal server error.
+ */
 router.get('/api/snippets',
   CodeSnippet.getCodeSnippets);
 
