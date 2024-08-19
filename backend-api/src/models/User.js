@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save',
   function (next) {
     try {
-      this.set({ updatedAt: Date.now() });
+      this.updatedAt = Date.now();
       next();
     } catch (err) {
       next(err);
