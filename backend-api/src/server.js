@@ -5,6 +5,7 @@ import mainRoutes from './routes/index.js';
 import checkAuthStatus from './middlewares/checkAuthStatus.js';
 import { redisStore } from './config/redis.js';
 import db from './config/db.js';
+import apiDoc from './swagger/swaggerSetup.js';
 
 const app = express();
 const port = process.env.EXPRESS_PORT || 5050;
@@ -21,9 +22,16 @@ app.use(session({
   store: redisStore,
 }));
 
+app.use(apiDoc);
+
 app.use(authRoutes);
 app.use(checkAuthStatus);
 app.use(mainRoutes);
+
+/** Fallback route: Not implemented -> http 501 status code */
+app.use('*', (req, res) => {
+  res.status(501).json({ message: 'Not implemented' });
+});
 
 app.listen(port, () => {
   console.log(`server running on port: ${port}`);
