@@ -24,7 +24,7 @@ class SubmitCode {
         return res.status(200).json(response.data);
       })
       .catch((error) => {
-        return res.status(400).json(error);
+        return res.status(500).json(error);
       })
   }
 }
