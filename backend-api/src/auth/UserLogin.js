@@ -14,7 +14,7 @@ class UserLogin {
       }
 
       if (!user) {
-        return res.status(401).json({ error: 'Invalid username/email or password.' });
+        return res.status(400).json({ error: 'Invalid username/email or password.' });
       }
 
       if (user.verified === false) {
@@ -23,7 +23,7 @@ class UserLogin {
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(401).json({ error: 'Invalid username/email or password.' });
+        return res.status(400).json({ error: 'Invalid username/email or password.' });
       }
       req.session.visited = true;
       req.session.userId = user.id;
@@ -31,9 +31,9 @@ class UserLogin {
       req.session.email = user.email;
       req.session.loggedIn = true;
 
-      return res.status(200).json({ message: 'success' });
+      return res.status(200).json({ message: 'User logged in successfully.' });
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 }

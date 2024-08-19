@@ -30,7 +30,8 @@ class EmailConfirmation {
       if (error) {
         throw new Error(error);
       } else {
-        return res.status(200).json({ message: `Email sent: ${info.response}` });
+        /** return res.status(200).json({ message: `Email sent: ${info.response}` }); */
+        return `Email sent: ${info.response}`;
       }
     });
   }
@@ -39,7 +40,7 @@ class EmailConfirmation {
     const { token } = req.query;
 
     if (!token) {
-      return res.status(400).res({ error: 'Confirmation token is required.' });
+      return res.status(400).json({ error: 'Confirmation token is required.' });
     }
 
     try {
@@ -50,7 +51,7 @@ class EmailConfirmation {
 
       return res.status(200).json({ message: 'Email verified successfully.' });
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(401).json({ error: error.message });
     }
   }
 }
