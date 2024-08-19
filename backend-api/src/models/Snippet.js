@@ -63,18 +63,29 @@ const snippetSchema = new mongoose.Schema({
 
 /** Middleware to update the updatedAt field before saving */
 snippetSchema.pre('save',
-  (next) => {
-    this.updatedAt = Date.now();
-    next();
+  function (next) {
+    try {
+      this.updatedAt = Date.now();
+      next();
+    } catch (error) {
+      next(error);
+    }
   });
 
 /** Middleware to update the updatedAt field before any update operation */
 snippetSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
-  (next) => {
-    this.set({ updatedAt: Date.now() });
-    next();
+  function (next) {
+    try {
+      this.set({ updatedAt: Date.now() });
+      next();
+    } catch (error) {
+      next(error);
+    }
   });
 
 const SnippetModel = mongoose.model('Snippet', snippetSchema);
+
+/** Add full-text search support */
+SnippetModel.createIndexes({ title: 'text', description: 'text' });
 
 export default SnippetModel;
