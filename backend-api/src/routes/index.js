@@ -5,9 +5,9 @@ import CodeSubmissionSchema from '../validations/codeSubmissionSchema.js';
 import snippetSchema from '../validations/snippetSchema.js';
 import CodeSnippet from '../controllers/CodeSnippet.js';
 import UpdateProfileSchema from '../validations/updateProfileSchema.js';
+import UpdateProfilePictureSchema from '../validations/updateProfilePictureSchema.js';
 import UserProfile from '../controllers/UserProfile.js';
 import UpdateSnippetSchema from '../validations/UpdateSnippetSchema.js';
-import upload from '../utils/multerProfilePicture.js';
 
 const router = Router();
 
@@ -150,14 +150,14 @@ router.get('/api/users/profile',
  * @swagger
  * /api/users/profile:
  *   put:
- *     summary: Update user profile
+ *     summary: User update his profile
  *     tags:
  *       - Users
  *     requestBody:
  *       description: User update profile data
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -183,10 +183,6 @@ router.get('/api/users/profile',
  *                 type: string
  *                 description: User LinkedIn profile link
  *                 example: https://linkedin.com/in/johndoe
- *               profilePicture:
- *                 type: string
- *                 format: binary
- *                 description: Profile picture file
  *             required:
  *               - interests
  *     responses:
@@ -230,14 +226,93 @@ router.get('/api/users/profile',
  */
 router.put('/api/users/profile',
   requestDataValidation(UpdateProfileSchema),
-  upload.single('profilePicture'),
   UserProfile.updateProfile);
+
+/**
+ * @swagger
+ * /api/users/profile/picture:
+ *   put:
+ *     summary: User update his profile picture
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       description: User profile picture
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *                 description: User profile picture file
+ *             required:
+ *               - profilePicture
+ *     responses:
+ *       200:
+ *         description: Profile picture updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 profilePicture:
+ *                   type: string
+ *                   example: https://storage.cloud.google.com/data-codeversus/default_profile.jpeg
+ *                 message:
+ *                   type: string
+ *                   example: Profile picture updated successfully.
+ *       400:
+ *         description: Invalid payload.
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.put('/api/users/profile/picture',
+  UserProfile.uploadMulter,
+  requestDataValidation(UpdateProfilePictureSchema),
+  UserProfile.updateProfilePicture);
+
+/**
+ * @swagger
+ * /api/users/profile/picture:
+ *   delete:
+ *     summary: User delete his profile picture
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: Profile picture deleted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 profilePicture:
+ *                   type: string
+ *                   example: https://storage.cloud.google.com/data-codeversus/default_profile.jpeg
+ *                 message:
+ *                   type: string
+ *                   example: Profile picture deleted successfully.
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete('/api/users/profile/picture',
+  UserProfile.deleteProfilePicture);
 
 /**
  * @swagger
  * /api/users/friends:
  *   get:
- *     summary: User retrieve his friends
+ *     summary: User search/find his friends
  *     tags:
  *       - Users
  *     parameters:
@@ -318,7 +393,7 @@ router.get('/api/users/friends',
  * @swagger
  * /api/users:
  *   get:
- *     summary: User retrieve other users
+ *     summary: User search/find other users
  *     tags:
  *       - Users
  *     parameters:
@@ -609,7 +684,7 @@ router.post('/api/snippets',
  * @swagger
  * /api/snippets:
  *   get:
- *     summary: User search/find code snippets
+ *     summary: User search/find his own code snippets
  *     tags:
  *       - Code Snippet
  *     parameters:
@@ -1052,7 +1127,7 @@ router.get('/api/snippets/from/:privateLink',
 
 /**
  * @swagger
- * /api/snippets/public:
+ * /api/public-snippets:
  *   get:
  *     summary: User search/find public code snippets
  *     tags:
@@ -1158,7 +1233,7 @@ router.get('/api/snippets/from/:privateLink',
  *       500:
  *         description: Internal server error.
  */
-router.get('/api/snippets/public',
+router.get('/api/public-snippets',
   CodeSnippet.getPublicCodeSnippets);
 
 /**
