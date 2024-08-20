@@ -10,7 +10,17 @@ class UserSignup {
     try {
       const hashedPassword = await hashPassword(password);
 
-      const newUser = new UserModel({ username, email, password: hashedPassword });
+      /** Default profile picture */
+      const profilePicture = process.env.GCP_DEFAULT_IMAGE_URL;
+
+      const newUser = new UserModel({
+        username,
+        email,
+        password: hashedPassword,
+        userProfile: {
+          profilePicture,
+        }
+      });
       await newUser.save();
 
       /** Email confirmation logic */
@@ -30,7 +40,7 @@ class UserSignup {
         message: 'Your account was successfuly created, please verify your email.'
       });
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 }
