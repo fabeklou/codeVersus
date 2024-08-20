@@ -1,5 +1,7 @@
+import multer from 'multer';
 import UserModel from '../models/User.js';
 import SnippetModel from '../models/Snippet.js';
+import upload from '../utils/multerProfilePicture.js';
 import { sendToGCS, deleteFromGCS } from '../utils/manageCloudStorageFiles.js';
 import UserInterests from '../controllers/UserInterests.js';
 import InterestModel from '../models/Interest.js';
@@ -23,6 +25,20 @@ class UserProfile {
     }
 
     return interestIds.length ? interestIds : null;
+  }
+
+  static async uploadMulter(req, res, next) {
+    upload.single('profilePicture')(req, res, (err) => {
+      if (err) {
+        if (err instanceof multer.MulterError) {
+          return res.status(400).json({ error: err.message });
+        } else if (err.message === 'Invalid file type') {
+          return res.status(400).json({ error: err.message });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+      next();
+    });
   }
 
   static async getProfile(req, res) {
@@ -50,13 +66,12 @@ class UserProfile {
 
       return res.status(200).json(user);
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
   static async updateProfile(req, res) {
     const { userId } = req.session;
-    const { file } = req;
     const {
       bio,
       interests,
@@ -66,15 +81,9 @@ class UserProfile {
     } = req.body;
 
     try {
-      let profilePicture;
-
       const user = await UserModel.findById(userId);
 
       if (!user) return res.status(404).json({ error: 'User not found' });
-
-      if (file) {
-        profilePicture = await sendToGCS(file, user.username);
-      }
 
       const interestIds = await UserProfile.saveInterestsAndGetIds(interests);
 
@@ -84,7 +93,6 @@ class UserProfile {
         githubLink: githubLink || user.userProfile.githubLink,
         xLink: xLink || user.userProfile.xLink,
         linkedinLink: linkedinLink || user.userProfile.linkedinLink,
-        profilePicture: profilePicture || user.userProfile.profilePicture
       };
 
       await UserModel.findByIdAndUpdate(
@@ -97,7 +105,46 @@ class UserProfile {
         userProfile: updatedUserProfile
       });
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async updateProfilePicture(req, res) {
+    const { userId } = req.session;
+    const { file } = req;
+
+    try {
+      let profilePicture;
+
+      const user = await UserModel.findById(userId);
+
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      profilePicture = await sendToGCS(file, user.username);
+
+      await UserModel.findByIdAndUpdate(userId, { 'userProfile.profilePicture': profilePicture });
+
+      return res.status(200).json({ profilePicture, message: 'Profile picture updated successfully.' });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async deleteProfilePicture(req, res) {
+    const { userId } = req.session;
+
+    try {
+      const profilePicture = process.env.GCP_DEFAULT_IMAGE_URL;
+
+      const user = await UserModel.findById(userId);
+
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      await UserModel.findByIdAndUpdate(userId, { 'userProfile.profilePicture': profilePicture });
+
+      return res.status(200).json({ profilePicture, message: 'Profile picture deleted successfully.' });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -112,8 +159,6 @@ class UserProfile {
           email: 0,
           password: 0,
           verified: 0,
-          userProfile: 1,
-          username: 1,
           ...(searchQuery && { score: { $meta: "textScore" } })
         })
         .sort(searchQuery ? { score: { $meta: "textScore" } } : {})
@@ -129,21 +174,8 @@ class UserProfile {
         .limit(pageLimit)
         .lean();
 
-      const transformedUsers = users.map(user => {
-        const { userProfile, ...rest } = user;
-        const transformedUserProfile = {
-          ...userProfile,
-          friends: userProfile.friends.map((friend) => friend.username),
-          interests: userProfile.interests.map((interest) => interest.name)
-        };
-        return {
-          ...rest,
-          userProfile: transformedUserProfile
-        };
-      });
-
       const usersData = {
-        users: transformedUsers,
+        users: users,
         page: pageNumber,
         limit: pageLimit,
         total: users.length
@@ -190,7 +222,7 @@ class UserProfile {
 
       return res.status(200).json(usersData);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -205,11 +237,16 @@ class UserProfile {
       const filter = { _id: { $ne: userId } };
 
       if (interests) {
-        const dbInterests = await InterestModel.find({
-          name: { $in: interests }
-        }, '_id');
+        const interestsArray = Array.isArray(interests) ? interests : [interests];
 
-        const interestIds = dbInterests.map((dbInterest) => dbInterest._id);
+        const dbInterests = await InterestModel.find(
+          { name: { $in: interestsArray } },
+          '_id'
+        ).lean();
+
+        /** Fallback to an empty array if dbInterests is undefined or null */
+        const interestIds = (dbInterests || []).map((dbInterest) => dbInterest._id);
+
         filter['userProfile.interests'] = { $in: interestIds };
       }
 
@@ -222,7 +259,7 @@ class UserProfile {
 
       return res.status(200).json(usersData);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -246,7 +283,7 @@ class UserProfile {
 
       return res.status(200).json(user);
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -277,7 +314,7 @@ class UserProfile {
 
       return res.status(200).json({ message: 'Friend added successfully.' });
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -291,7 +328,7 @@ class UserProfile {
       await UserModel.findByIdAndDelete(userId);
       return res.status(200).json({ message: 'User account and snippets deleted successfully.' });
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 }
