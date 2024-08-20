@@ -36,13 +36,15 @@ const userSchema = new mongoose.Schema({
       type: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-      }]
+      }],
+      default: []
     },
     interests: {
       type: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Interest'
       }],
+      default: [],
       validate: {
         validator: (value) => {
           return value.length === new Set(value.map(
@@ -88,9 +90,10 @@ userSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
     }
   });
 
+/** Add full-text search support */
+userSchema.index({ username: 'text' });
+
 const UserModel = mongoose.model('User', userSchema);
 
-/** Add full-text search support */
-UserModel.createIndexes({ username: 'text' });
 
 export default UserModel;
