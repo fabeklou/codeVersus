@@ -3,7 +3,8 @@ const requestDataValidation = (validationSchema) => async (req, res, next) => {
     const requestData = {
       body: req.body,
       query: req.query,
-      params: req.params
+      params: req.params,
+      file: req.file,
     }
 
     await validationSchema.validate(requestData, { abortEarly: true });
