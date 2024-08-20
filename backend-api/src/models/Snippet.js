@@ -25,6 +25,7 @@ const snippetSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tag'
     }],
+    default: [],
     validate: {
       validator: (value) => {
         return value.length === new Set(value.map(tag => tag.toString())).size;
@@ -83,9 +84,9 @@ snippetSchema.pre(['findOneAndUpdate', 'updateOne', 'findByIdAndUpdate'],
     }
   });
 
-const SnippetModel = mongoose.model('Snippet', snippetSchema);
-
 /** Add full-text search support */
-SnippetModel.createIndexes({ title: 'text', description: 'text' });
+snippetSchema.index({ title: 'text' });
+
+const SnippetModel = mongoose.model('Snippet', snippetSchema);
 
 export default SnippetModel;
