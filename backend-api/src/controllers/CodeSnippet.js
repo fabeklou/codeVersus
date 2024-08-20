@@ -2,6 +2,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import SnippetModel from '../models/Snippet.js';
 import SnippetTag from '../controllers/SnippetTag.js';
+import TagModel from '../models/Tag.js';
 
 const snippetsRootFoler = process.env.SNIPPETS_ROOT_FOLDER || '../snippets';
 
@@ -202,16 +203,16 @@ class CodeSnippet {
         .lean();
 
       /** Rename userId to username */
-      const transformedSnippets = snippets.map(snippet => {
-        return {
-          ...snippet,
-          username: snippet.userId,
-          userId: undefined
-        };
-      });
+      // const transformedSnippets = snippets.map(snippet => {
+      //   return {
+      //     ...snippet,
+      //     username: snippet.userId,
+      //     userId: undefined
+      //   };
+      // });
 
       const snippetsData = {
-        snippets: transformedSnippets,
+        snippets,
         page: pageNumber,
         limit: pageLimit,
         total: snippets.length
@@ -227,15 +228,27 @@ class CodeSnippet {
     const { userId } = req.session;
     const { page, limit, language, tags, query } = req.query;
 
-    const pageLimit = parseInt(page, 10) || 10;
-    const pageNumber = parseInt(limit, 10) || 1;
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageLimit = parseInt(limit, 10) || 10;
 
     try {
       const filter = {
         userId,
-        language: language || { $exists: true },
-        ...(tags && { tags: { $in: tags } })
+        language: language || { $exists: true }
       };
+
+      if (tags) {
+        const tagsArray = Array.isArray(tags) ? tags : [tags];
+
+        const dbTags = await TagModel.find(
+          { name: { $in: tagsArray } },
+          '_id'
+        ).lean();
+
+        const tagsIds = (dbTags || []).map(
+          (dbTag) => dbTag._id);
+        filter.tags = { $in: tagsIds };
+      }
 
       const snippets = await CodeSnippet.searchCodeSnippets(
         pageNumber,
@@ -244,7 +257,7 @@ class CodeSnippet {
         query);
       return res.status(200).json(snippets);
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -324,7 +337,7 @@ class CodeSnippet {
         language: language || snippet.language,
         description: description || snippet.description,
         tags: tagIds || snippet.tags,
-        isPublic: isPublic || snippet.isPublic
+        isPublic: isPublic
       };
 
       await SnippetModel.updateOne({ _id: snippetId }, updateValues);
@@ -472,19 +485,34 @@ class CodeSnippet {
   }
 
   static async getPublicCodeSnippets(req, res) {
+    const { userId } = req.session;
     const { page, limit, query, language, tags } = req.query;
-
-    const pageLimit = parseInt(page, 10) || 10;
-    const pageNumber = parseInt(limit, 10) || 1;
+    console.log('query ', query);
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageLimit = parseInt(limit, 10) || 10;
 
     try {
       /** filter public snippets based on language and tags */
       const filter = {
         isPublic: true,
         language: language || { $exists: true },
-        ...(tags && { tags: { $in: tags } })
+        userId: { $ne: userId }
       };
 
+      if (tags) {
+        const tagsArray = Array.isArray(tags) ? tags : [tags];
+
+        const dbTags = await TagModel.find(
+          { name: { $in: tagsArray } },
+          '_id'
+        ).lean();
+
+        const tagsIds = (dbTags || []).map(
+          (dbTag) => dbTag._id);
+
+        filter.tags = { $in: tagsIds };
+      }
+      console.log('filter ', filter);
       const snippets = await CodeSnippet
         .searchCodeSnippets(
           pageNumber,
@@ -493,7 +521,7 @@ class CodeSnippet {
           query);
       return res.status(200).json(snippets);
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
   }
 
