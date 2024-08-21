@@ -5,7 +5,7 @@ const UpdateSnippetSchema = yup.object({
     title:
       yup.string('Title must be a string.')
         .max(35, 'Title must be at most 35 characters.'),
-    language:
+    programmingLanguage:
       yup.string('Programming language name must be a string.')
         .max(15, 'Programming language name must be at most 15 characters.'),
     codeSnippet:
