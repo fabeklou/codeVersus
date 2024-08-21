@@ -7,6 +7,9 @@ import requestDataValidation from '../middlewares/requestDataValidation.js';
 import UserLogout from './UserLogout.js';
 import EmailConfirmation from './EmailConfirmation.js';
 import checkAuthStatus from '../middlewares/checkAuthStatus.js';
+import ForgotPasswordSchema from '../validations/forgotPasswordSchema.js';
+import ResetPasswordSchema from '../validations/resetPasswordSchema.js';
+import ForgotPasword from './ForgotPassword.js';
 
 const router = Router();
 
@@ -206,5 +209,109 @@ router.get('/api/auth/logout',
  */
 router.get('/api/auth/confirmation',
   EmailConfirmation.confirmation);
+
+/**
+* @swagger
+* /api/auth/password/forgot:
+*   post:
+*     summary: User Forgot his Password
+*     tags:
+*       - Authentication
+*     requestBody:
+*       description: User email address
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               email:
+*                 type: string
+*                 description: The user's email address
+*                 example: johndoe@example.com
+*             required:
+*               - email
+*     responses:
+*       200:
+*         description: Password reset email successfully sent.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: Password reset email sent.
+*       400:
+*         description: Bad request / Email is required.
+*       401:
+*         description: Please verify your email address first.
+*       404:
+*         description: No account linked to this email address.
+*       500:
+*         description: Internal server error
+*/
+router.post('/api/auth/password/forgot',
+  requestDataValidation(ForgotPasswordSchema),
+  ForgotPasword.forgotPassword);
+
+/**
+* @swagger
+* /api/auth/password/reset:
+*   post:
+*     summary: User reset his Password (create new password)
+*     tags:
+*       - Authentication
+*     parameters:
+*       - in: query
+*         name: token
+*         required: true
+*         schema:
+*           type: string
+*           description: JWT token sent to user email.
+*           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG5kb2VAZXhhbXBsZS5jb20ifQ.0H3zq8Gm8TQJ5J2jDq0kPbJ9zv9J1GJvK6Y9J1GJvK6
+*     requestBody:
+*       description: User new password and repeated password
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             properties:
+*               password:
+*                 type: string
+*                 format: password
+*                 description: The user's password
+*                 example: MyNewSecurePassword-123
+*               repeatedPassword:
+*                 type: string
+*                 format: password
+*                 description: The user's password repeated
+*                 example: MyNewSecurePassword-123
+
+*             required:
+*               - password
+*               - repeatedPassword
+*     responses:
+*       200:
+*         description: Password reset.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: Password successfully reset.
+*       400:
+*         description: Bad request / A valid Token is required.
+*       404:
+*         description: User not found.
+*       500:
+*         description: Internal server error
+*/
+router.post('/api/auth/password/reset',
+  requestDataValidation(ResetPasswordSchema),
+  ForgotPasword.resetPassword);
 
 export default router;
