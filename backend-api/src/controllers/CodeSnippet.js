@@ -78,11 +78,11 @@ class CodeSnippet {
 
     for (const tag of tags) {
       try {
-        const tagId = await SnippetTag.createTag(tag);
+        const tagId = await SnippetTag.createTag(tag.toLowerCase());
         tagIds.push(tagId);
       } catch (error) {
         try {
-          const tagInDb = await SnippetTag.getTagByName(tag);
+          const tagInDb = await SnippetTag.getTagByName(tag.toLowerCase());
           tagIds.push(tagInDb._id);
         } catch (error) {
           throw new Error(error);
@@ -97,7 +97,7 @@ class CodeSnippet {
     const { userId } = req.session;
     const {
       title,
-      language,
+      programmingLanguage,
       codeSnippet,
       isPublic,
       description,
@@ -110,7 +110,7 @@ class CodeSnippet {
     try {
       CodeSnippet.createUserSnippetsFolder(userSnippetsRootFolder);
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
 
     /** create array of tagIds */
@@ -128,14 +128,14 @@ class CodeSnippet {
     try {
       await CodeSnippet.saveSnippetOnDisk(filePath, codeSnippet);
     } catch (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
 
     /** Create dict of data to save in db */
 
     const snippetData = {
       title,
-      language,
+      programmingLanguage,
       isPublic,
       tags: tagIds,
       userId,
@@ -175,7 +175,7 @@ class CodeSnippet {
       const snippets = await SnippetModel
         .find(filter, {
           title: 1,
-          language: 1,
+          programmingLanguage: 1,
           description: 1,
           tags: 1,
           userId: 1,
@@ -226,7 +226,13 @@ class CodeSnippet {
 
   static async getCodeSnippets(req, res) {
     const { userId } = req.session;
-    const { page, limit, language, tags, query } = req.query;
+    const {
+      page,
+      limit,
+      programmingLanguage,
+      tags,
+      query
+    } = req.query;
 
     const pageNumber = parseInt(page, 10) || 1;
     const pageLimit = parseInt(limit, 10) || 10;
@@ -234,7 +240,7 @@ class CodeSnippet {
     try {
       const filter = {
         userId,
-        language: language || { $exists: true }
+        programmingLanguage: programmingLanguage || { $exists: true }
       };
 
       if (tags) {
@@ -291,7 +297,7 @@ class CodeSnippet {
       const snippetData = {
         id: snippet._id,
         title: snippet.title,
-        language: snippet.language,
+        programmingLanguage: snippet.programmingLanguage,
         codeSnippet,
         description: snippet.description,
         tags: snippet.tags,
@@ -311,7 +317,7 @@ class CodeSnippet {
     const { snippetId } = req.params;
     const {
       title,
-      language,
+      programmingLanguage,
       codeSnippet,
       isPublic,
       description,
@@ -334,7 +340,7 @@ class CodeSnippet {
 
       const updateValues = {
         title: title || snippet.title,
-        language: language || snippet.language,
+        programmingLanguage: programmingLanguage || snippet.programmingLanguage,
         description: description || snippet.description,
         tags: tagIds || snippet.tags,
         isPublic: isPublic
@@ -445,7 +451,7 @@ class CodeSnippet {
 
       const snippetData = {
         title: snippet.title,
-        language: snippet.language,
+        programmingLanguage: snippet.programmingLanguage,
         codeSnippet,
         description: snippet.description,
         tags: snippet.tags,
@@ -486,16 +492,16 @@ class CodeSnippet {
 
   static async getPublicCodeSnippets(req, res) {
     const { userId } = req.session;
-    const { page, limit, query, language, tags } = req.query;
-    console.log('query ', query);
+    const { page, limit, query, programmingLanguage, tags } = req.query;
+
     const pageNumber = parseInt(page, 10) || 1;
     const pageLimit = parseInt(limit, 10) || 10;
 
     try {
-      /** filter public snippets based on language and tags */
+      /** filter public snippets based on programmingLanguage and tags */
       const filter = {
         isPublic: true,
-        language: language || { $exists: true },
+        programmingLanguage: programmingLanguage || { $exists: true },
         userId: { $ne: userId }
       };
 
@@ -512,7 +518,7 @@ class CodeSnippet {
 
         filter.tags = { $in: tagsIds };
       }
-      console.log('filter ', filter);
+
       const snippets = await CodeSnippet
         .searchCodeSnippets(
           pageNumber,

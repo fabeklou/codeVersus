@@ -3,12 +3,13 @@ import findLanguageId from '../utils/languageById.js';
 
 class SubmitCode {
   static async submissions(req, res) {
-    const { submission, language, stdin } = req.body;
+    const { submission, programmingLanguage, stdin } = req.body;
     const judgeURL = process.env.JUDGE0_URL;
-    const languageId = findLanguageId(language);
+    const languageId = findLanguageId(programmingLanguage);
 
     if (!languageId) {
-      return res.status(400).json({ error: 'Invalid or unsupported language.' });
+      return res.status(400)
+        .json({ error: 'Invalid or unsupported programming language.' });
     }
 
     axios.post(`${judgeURL}/submissions?base64_encoded=true&wait=true`, {
