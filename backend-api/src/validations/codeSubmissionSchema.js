@@ -5,7 +5,7 @@ const CodeSubmissionSchema = yup.object({
     submission:
       yup.string()
         .required('A code submission is required.'),
-    language:
+    programmingLanguage:
       yup.string()
         .required('Programming language name is required.'),
     stdin:
