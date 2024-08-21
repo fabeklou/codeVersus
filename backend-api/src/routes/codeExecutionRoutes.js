@@ -26,7 +26,7 @@ const router = Router();
 *                 type: string
 *                 description: Code submited by the user
 *                 example: "print('Hello from Code Versus: ', input(), input(), input())"
-*               language:
+*               programmingLanguage:
 *                 type: string
 *                 description: Pragramming language of user's code submission
 *                 example: Python
@@ -37,7 +37,7 @@ const router = Router();
 *
 *             required:
 *               - submission
-*               - language
+*               - programmingLanguage
 *     responses:
 *       200:
 *         description: Successful code execution.

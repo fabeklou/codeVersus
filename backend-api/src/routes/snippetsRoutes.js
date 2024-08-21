@@ -28,7 +28,7 @@ const router = Router();
 *                 description: Title of the code snippet
 *                 example: My first code snippet
 *                 default: Untitled Snippet
-*               language:
+*               programmingLanguage:
 *                 type: string
 *                 description: Pragramming language of the code snippet
 *                 example: Python
@@ -52,7 +52,7 @@ const router = Router();
 *                 example: true
 *             required:
 *               - title
-*               - language
+*               - programmingLanguage
 *               - codeSnippet
 *               - description
 *               - tags
@@ -124,7 +124,7 @@ router.post('/api/snippets',
  *           description: Search query to find snippets
  *           example: backtracking
  *       - in: query
- *         name: language
+ *         name: programmingLanguage
  *         schema:
  *           type: string
  *           description: Filter snippets by programming language
@@ -157,7 +157,7 @@ router.post('/api/snippets',
  *                       title:
  *                         type: string
  *                         example: My first code snippet
- *                       language:
+ *                       programmingLanguage:
  *                         type: string
  *                         example: Python
  *                       codeSnippet:
@@ -210,7 +210,7 @@ router.get('/api/snippets',
 *                 title:
 *                   type: string
 *                   example: My first code snippet
-*                 language:
+*                 programmingLanguage:
 *                   type: string
 *                   example: Python
 *                 codeSnippet:
@@ -275,7 +275,7 @@ router.get('/api/snippets/:snippetId',
 *                 description: Title of the code snippet
 *                 example: My first code snippet
 *                 default: Untitled Snippet
-*               language:
+*               programmingLanguage:
 *                 type: string
 *                 description: Pragramming language of the code snippet
 *                 example: Python
@@ -500,7 +500,7 @@ router.get('/api/snippets/link/:snippetId',
 *                 title:
 *                   type: string
 *                   example: My first code snippet
-*                 language:
+*                 programmingLanguage:
 *                   type: string
 *                   example: Python
 *                 codeSnippet:
@@ -569,7 +569,7 @@ router.get('/api/snippets/from/:privateLink',
  *           description: Search query to find snippets
  *           example: backtracking
  *       - in: query
- *         name: language
+ *         name: programmingLanguage
  *         schema:
  *           type: string
  *           description: Filter snippets by programming language
@@ -602,7 +602,7 @@ router.get('/api/snippets/from/:privateLink',
  *                       title:
  *                         type: string
  *                         example: My first code snippet
- *                       language:
+ *                       programmingLanguage:
  *                         type: string
  *                         example: Python
  *                       codeSnippet:
