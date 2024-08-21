@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import hashPassword from '../utils/hashPassword.js';
 import UserModel from '../models/User.js';
-import EmailConfirmation from './EmailConfirmation.js';
+import { sendConfirmationEmail } from '../utils/sendEmailToUser.js';
 
 class UserSignup {
   static async register(req, res) {
@@ -31,7 +31,7 @@ class UserSignup {
           { expiresIn: '1h' }
         );
 
-        EmailConfirmation.sendConfirmationEmail(email, emailToken);
+        sendConfirmationEmail(email, emailToken);
       } catch (error) {
         return res.status(400).json({ error });
       }
