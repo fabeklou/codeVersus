@@ -6,7 +6,7 @@ const snippetSchema = new mongoose.Schema({
     maxLength: 35,
     default: 'Untitled Snippet'
   },
-  language: {
+  programmingLanguage: {
     type: String,
     maxLength: 15,
     required: true
