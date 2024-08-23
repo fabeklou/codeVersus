@@ -1,0 +1,50 @@
+name: Deploy to GCE
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install dependencies and build frontend
+      working-directory: ./frontend
+      run: |
+        npm install
+        npm run build
+
+    - name: Install dependencies and build backend
+      working-directory: ./backend-api
+      run: |
+        npm install
+        npm run build
+
+    - name: Configure GCP Credentials
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Deploy to GCE
+      run: |
+        gcloud compute scp --recurse ./frontend/dist ${{ secrets.GCE_SSH_USER }}@${{ secrets.GCE_VM_IP }}:/var/www/html
+        gcloud compute scp --recurse ./backend-api ${{ secrets.GCE_SSH_USER }}@${{ secrets.GCE_VM_IP }}:/var/www/backend
+        gcloud compute ssh ${{ secrets.GCE_SSH_USER }}@${{ secrets.GCE_VM_IP }} --command "sudo systemctl restart nginx"
+
+    - name: Cleanup (Optional)
+      run: |
+        rm -rf ./frontend/dist
+        rm -rf ./backend-api/dist
