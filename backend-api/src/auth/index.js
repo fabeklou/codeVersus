@@ -120,6 +120,8 @@ router.post('/api/auth/register',
 *         description: Invalid username/email or password.
 *       401:
 *         description: Please verify your account.
+*       429:
+*         description: Too many failed login attempts. wait 15 minutes and try again.
 *       500:
 *         description: Internal server error
 */
@@ -253,6 +255,8 @@ router.get('/api/auth/confirmation',
 *         description: Please verify your email address first.
 *       404:
 *         description: No account linked to this email address.
+*       429:
+*         description: Too many requests / You must wait 7 days from your last password reset.
 *       500:
 *         description: Internal server error
 */

@@ -75,6 +75,8 @@ const router = Router();
 *         description: Invalid or unsupported language.
 *       401:
 *         description: Unauthorized.
+*       429:
+*         description: Too many requests. / You have attempted to run code too soon. Please try again in a few seconds.
 *       500:
 *         description: Internal server error
 */
