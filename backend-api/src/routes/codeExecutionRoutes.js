@@ -2,6 +2,7 @@ import { Router } from 'express';
 import SubmitCode from '../controllers/SubmitCode.js';
 import requestDataValidation from '../middlewares/requestDataValidation.js';
 import CodeSubmissionSchema from '../validations/codeSubmissionSchema.js';
+import { codeExecLimiterMiddleware } from '../middlewares/rateLimiterRedis.js';
 
 const router = Router();
 
@@ -74,10 +75,13 @@ const router = Router();
 *         description: Invalid or unsupported language.
 *       401:
 *         description: Unauthorized.
+*       429:
+*         description: Too many requests. / You have attempted to run code too soon. Please try again in a few seconds.
 *       500:
 *         description: Internal server error
 */
 router.post('/api/submissions',
+  codeExecLimiterMiddleware,
   requestDataValidation(CodeSubmissionSchema),
   SubmitCode.submissions);
 
