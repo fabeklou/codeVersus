@@ -7,7 +7,7 @@ const apiUrl = process.env.BACKEND_API_URL;
 
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: '⚔️ Code Versus API',
       version: '0.0.1',
