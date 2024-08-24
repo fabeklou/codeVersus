@@ -6,6 +6,7 @@ import checkAuthStatus from './middlewares/checkAuthStatus.js';
 import { redisStore } from './config/redis.js';
 import db from './config/db.js';
 import apiDoc from './swagger/swaggerSetup.js';
+import { globalLimiterMiddleware } from './middlewares/rateLimiterRedis.js';
 
 const app = express();
 const port = process.env.EXPRESS_PORT || 5050;
@@ -24,6 +25,7 @@ app.use(session({
 
 app.use(apiDoc);
 
+app.use(globalLimiterMiddleware);
 app.use(authRoutes);
 app.use(checkAuthStatus);
 app.use(mainRoutes);
