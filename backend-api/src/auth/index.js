@@ -10,6 +10,10 @@ import checkAuthStatus from '../middlewares/checkAuthStatus.js';
 import ForgotPasswordSchema from '../validations/forgotPasswordSchema.js';
 import ResetPasswordSchema from '../validations/resetPasswordSchema.js';
 import ForgotPasword from './ForgotPassword.js';
+import {
+  loginLimiterMiddleware,
+  passwordResetLimiterMiddleware
+} from '../middlewares/rateLimiterRedis.js';
 
 const router = Router();
 
@@ -120,6 +124,7 @@ router.post('/api/auth/register',
 *         description: Internal server error
 */
 router.post('/api/auth/login',
+  loginLimiterMiddleware,
   requestDataValidation(LoginSchema),
   UserLogin.login);
 
@@ -252,6 +257,7 @@ router.get('/api/auth/confirmation',
 *         description: Internal server error
 */
 router.post('/api/auth/password/forgot',
+  passwordResetLimiterMiddleware,
   requestDataValidation(ForgotPasswordSchema),
   ForgotPasword.forgotPassword);
 
