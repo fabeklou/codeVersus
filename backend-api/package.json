@@ -8,7 +8,10 @@
     "check-lint": "lint *.js",
     "start:dev": "nodemon --env-file=.env ./src/server.js",
     "start": "node ./src/server.js",
-    "test": "./node_modules/.bin/mocha --require @babel/register --exit"
+    "test": "./node_modules/.bin/mocha --require @babel/register --exit",
+    "build": "npm run clean && npm run copy-static-files",
+    "clean": "rm -rf dist",
+    "copy-static-files": "cp -R ./src/static ./dist/static"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +34,7 @@
     "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "rate-limiter-flexible": "^5.0.3",
     "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
