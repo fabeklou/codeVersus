@@ -2,6 +2,7 @@ import { Router } from 'express';
 import SubmitCode from '../controllers/SubmitCode.js';
 import requestDataValidation from '../middlewares/requestDataValidation.js';
 import CodeSubmissionSchema from '../validations/codeSubmissionSchema.js';
+import { codeExecLimiterMiddleware } from '../middlewares/rateLimiterRedis.js';
 
 const router = Router();
 
@@ -78,6 +79,7 @@ const router = Router();
 *         description: Internal server error
 */
 router.post('/api/submissions',
+  codeExecLimiterMiddleware,
   requestDataValidation(CodeSubmissionSchema),
   SubmitCode.submissions);
 
