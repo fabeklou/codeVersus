@@ -25,10 +25,10 @@
             tabindex="0"
             class="menu menu-sm dropdown-content bg-lime-400 text-slate-800 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
-            <li class="text-bold"><a>Home</a></li>
-            <li><a>Snippets</a></li>
-            <li><a>Moonwalk</a></li>
-            <li><a>Battle</a></li>
+            <li><RouterLink to="/">Home</RouterLink></li>
+            <li><RouterLink to="/Playground">Snippets</RouterLink></li>
+            <li><RouterLink to="/" v-on:click="() => console.log('M')">Moonwalk</RouterLink></li>
+            <li><RouterLink to="/" v-on:click="() => console.log('B')">Battle</RouterLink></li>
           </ul>
         </div>
         <a class="btn btn-ghost text-xl font-bold 6xl lg:4xl" href="#home">
@@ -37,16 +37,16 @@
       </div>
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-          <li class="text-bold"><a>Home</a></li>
-          <li><a>Snippets</a></li>
-          <li><a>Moonwalk</a></li>
-          <li><a>Battle</a></li>
+            <li><RouterLink to="/">Home</RouterLink></li>
+            <li><RouterLink to="/Playground">Snippets</RouterLink></li>
+            <li><RouterLink to="/" v-on:click="() => console.log('M')">Moonwalk</RouterLink></li>
+            <li><RouterLink to="/" v-on:click="() => console.log('B')">Battle</RouterLink></li>
         </ul>
       </div>
       <div class="navbar-end">
-        <a class="link px-4">Login</a>
-        <a class="btn mx-4 px-8 bg-lime-400 hover:bg-lime-200 border-none text-slate-800"
-          >Register</a
+        <RouterLink to="/login" class="link px-4">Login</RouterLink>
+        <RouterLink to="/register" class="btn mx-4 px-8 bg-lime-400 hover:bg-lime-200 border-none text-slate-800"
+          >Register</RouterLink
         >
       </div>
     </div>

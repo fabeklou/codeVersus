@@ -13,16 +13,27 @@
     </div>
     <!-- Right: Login Form -->
     <div class="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-      <h1 class="text-3xl font-semibold mb-2">Login</h1>
-      <p class="mb-12">Nice to see you again ...</p>
+      <h1 class="text-3xl font-semibold mb-2">Create new account</h1>
+      <p class="mb-12">We are happy to have you join the family ...</p>
       <form action="#" method="POST">
         <!-- Username Input -->
         <div class="mb-4">
-          <label for="usernameoremail" class="block text-gray-600">Username or Email</label>
+          <label for="username" class="block text-gray-600">Username</label>
           <input
             type="text"
-            id="usernameoremail"
-            name="usernameoremail"
+            id="username"
+            name="username"
+            class="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-indigo-600"
+            autocomplete="off"
+          />
+        </div>
+        <!-- Email Input -->
+        <div class="mb-4">
+          <label for="email" class="block text-gray-600">Email</label>
+          <input
+            type="text"
+            id="email"
+            name="email"
             class="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-indigo-600"
             autocomplete="off"
           />
@@ -38,27 +49,30 @@
             autocomplete="off"
           />
         </div>
-        <!-- Remember Me Checkbox -->
-        <div class="mb-4 flex items-center">
-          <input type="checkbox" id="remember" name="remember" class="text-lime-400" />
-          <label for="remember" class="text-gray-600 ml-2">Remember Me</label>
+        <!-- Repeat Password Input -->
+        <div class="mb-4">
+          <label for="repeatpassword" class="block text-gray-600">Repeat Password</label>
+          <input
+            type="password"
+            id="repeatpassword"
+            name="repeatpassword"
+            class="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-indigo-600"
+            autocomplete="off"
+          />
         </div>
-        <!-- Forgot Password Link -->
-        <div class="mb-6 text-indigo-600">
-          <a href="#" class="hover:underline">Forgot Password?</a>
-        </div>
-        <!-- Login Button -->
+        <!-- Sign Up Button -->
         <button
           type="submit"
           class="btn px-8 bg-lime-400 hover:bg-lime-300 border-none text-slate-800 font-semibold rounded-md py-2 w-full"
+          @click.prevent
         >
-          Login
+          Sign Up
         </button>
       </form>
-      <!-- Sign up  Link -->
+      <!-- Login  Link -->
       <div class="mt-6 text-indigo-600 text-center">
-        <span class="text-slate-800 mr-4">Don't have an account yet?</span>
-        <a href="#" class="hover:underline">Sign up Here</a>
+        <span class="text-slate-800 mr-4">Already have an account?</span>
+        <RouterLink to="/login" href="#" class="hover:underline">Login Here</RouterLink>
       </div>
     </div>
   </div>
